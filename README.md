@@ -1,5 +1,3 @@
-![](./profile-3d-contrib/profile-gitblock.svg)
-
 <picture>
   <source
     media="(prefers-color-scheme: dark)"
