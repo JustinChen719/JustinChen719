@@ -10,12 +10,18 @@ on:
 
 jobs:
   generate:
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
     permissions:
       contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
       - name: Generate snake SVG
         uses: Platane/snk/svg-only@v3
         with:
@@ -31,5 +37,19 @@ jobs:
         with:
           target_branch: output
           build_dir: dist
+          author: JustinChen719 <2542079957@qq.com>
+          committer: JustinChen719 <2542079957@qq.com>
+          commit_message: Update contribution snake
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit daily activity marker
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p .github
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/activity-stamp.txt
+          git config user.name "JustinChen719"
+          git config user.email "2542079957@qq.com"
+          git add .github/activity-stamp.txt
+          git commit -m "generated" || exit 0
+          git push
